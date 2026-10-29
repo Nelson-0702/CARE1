@@ -1,5 +1,5 @@
 #' Population size estimate for independent samples.
-#' @param z 
+#' @param z A vector of capture histories or ascertainment records.
 #' @return population size estimator
 
 estN.Indep=function(z){

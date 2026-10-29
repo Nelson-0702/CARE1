@@ -38,7 +38,7 @@ estN=function(z,method="Indep",se=FALSE,nboot=200){
 	
 	if(se){
 		z_bs = estN.bootstrap(z,round(nhat),nboot)
-		se = sd(apply(z_bs,2,FUN))
+		se = stats::sd(apply(z_bs,2,FUN))
 		M=sum(z)
 		c=exp(1.96*(log(1+se^2/(nhat-M)^2))^(0.5))
 		cil=M+(nhat-M)/c

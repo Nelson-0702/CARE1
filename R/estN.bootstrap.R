@@ -1,6 +1,6 @@
 
 #' Bootstrap resampling
-#' @param z the vector of ．capture histories・ or ．ascertainment records・.
+#' @param z the vector of capture histories or ascertainment records.
 #' @param rnhat the estimation of population size.
 #' @param nboot the number of bootstrap resampling times.
 #' @return Bootstrap resampling matrix
@@ -16,7 +16,7 @@ function(z,rnhat,nboot=1000){
 		
 		zstar=matrix(0,m,nboot)
 		for(j in 1:nboot){
-			a=runif(rnhat,0,1)
+			a=stats::runif(rnhat,0,1)
 			for(i in 1:m){
 				b=sort(a)
 				if(i==1) between=b[(b>=zcons[m+1]) & (b<zcons[1])] else between=b[(b>=zcons[i-1]) & (b<zcons[i])]

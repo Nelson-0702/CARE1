@@ -1,5 +1,5 @@
 #' Estimating population size via sample coverage
-#' @param z the vector of ．capture histories・ or ．ascertainment records・.
+#' @param z A vector of capture histories or ascertainment records.
 #' @return estimates based on any pair of samples
 
 estN.pair4 <-

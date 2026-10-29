@@ -1,5 +1,5 @@
-#'  Population size estimate for sufficiently high sample coverage cases.
-#' @param z 
+#' Population size estimate for sufficiently high sample coverage cases.
+#' @param z A vector of capture histories or ascertainment records.
 #' @return population size estimator
 #' @author Tsung-Chen Hsieh
 

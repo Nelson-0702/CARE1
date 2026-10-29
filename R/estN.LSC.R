@@ -1,5 +1,5 @@
 #' One-step population size estimate for low sample coverage cases.
-#' @param z 
+#' @param z A vector of capture histories or ascertainment records.
 #' @return population size estimator
 
 estN.LSC=function(z){
