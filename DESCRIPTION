@@ -7,7 +7,10 @@ Authors@R:
              role = c("aut", "cre"),
              email = "chao@stat.nthu.edu.tw"),
       person("T. C.", "Hsieh",
-             role = "aut"))
+             role = "aut"),
+      person("Po-Yen", "Chuang", 
+           role = "aut",
+           email = "zerind0970983096@gmail.com"))
 Description: The CARE1 package, the first part of the program CARE
     (Capture-Recapture), can be used to analyze epidemiological data
     via a sample coverage approach (Chao et al. 2001a).
