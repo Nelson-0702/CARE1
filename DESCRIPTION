@@ -1,6 +1,6 @@
 Package: CARE1
 Type: Package
-Title: Statistical Package for Population Size Estimation in Capture-Recapture Models
+Title: Population Size Estimation for Both Animal and Human Populations Using Capture-Recapture Models
 Version: 1.1.1
 Authors@R:
     c(person("Anne", "Chao",
@@ -11,11 +11,12 @@ Authors@R:
       person("Po-Yen", "Chuang",
              role = "aut",
              email = "zerind0970983096@gmail.com"))
-Description: Provides population size estimation and related statistical
-    methods for capture-recapture models using a sample coverage approach
-    (Chao et al., 2001). The package analyzes epidemiological data based
-    on records from several incomplete lists or samples of individuals.
-    It supports a maximum of five lists.
+Description: Provides functions for estimating the size of animal and
+    human populations using the sample coverage approach developed by
+    Chao et al. (2001) <doi:10.1002/sim.996> within a capture-recapture
+    (CARE) framework. Epidemiological data comprising multiple incomplete
+    lists are used for illustration. The package supports analyses
+    involving up to five lists.
 License: GPL-3
 Encoding: UTF-8
 RoxygenNote: 7.3.3

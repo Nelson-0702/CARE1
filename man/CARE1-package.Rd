@@ -1,17 +1,16 @@
-
 \name{CARE1-package}
 \alias{CARE1-package}
 \alias{CARE1}
 \docType{package}
 
 \title{
-Statistical Package for Population Size Estimation in Capture-Recapture Models
+Population size Estimation for Both Animal and Human Populations Using Capture-Recapture Models
 }
 
 \description{
-The CARE1 package, the first part of the program CARE (Capture-Recapture), provides population size estimation and related statistical methods using a sample coverage approach (Chao et al., 2001a).
-
-Based on records from several incomplete lists or samples of individuals, CARE1 can be used to analyze epidemiological data and estimate population sizes and related statistics. The maximum number of lists supported is five.
+The CARE1 (CApture-REcapture, Part 1) package provides functions for estimating the sizes of animal and wildlife populations using the sample coverage approach developed by Chao et al. (2001) \doi{10.1002/sim.996} within a capture-recapture framework. 
+Three epidemiological datasets comprising multiple incomplete lists are included for illustration: a three-list dataset on Hepatitis A virus, a four-list dataset on diabetes, and a five-list dataset on congenital anomaly. 
+The resulting population size estimates can be used to adjust for under-ascertainment in epidemiological studies. The package can also be applied to estimate animal population sizes.
 }
 
 \details{
@@ -30,10 +29,8 @@ Maintainer: Anne Chao \email{chao@stat.nthu.edu.tw}
 }
 
 \references{
-Chao, A., and Tsay, P. K. (1998). A sample coverage approach to multiple-system estimation with application to census undercount.
-\emph{Journal of the American Statistical Association},
-93, 283-293.
+Chao, A. (2015). Capture-recapture for human populations. \emph{Wiley StatsRef: Statistics Reference Online}. W. Piegorsch, Ed. John Wiley & Sons, 1--16. \doi{10.1002/9781118445112.stat04855.pub2}
 
-Chao, A., Tsay, P. K., Lin, S. H., Shau, W. Y., and Chao, D. Y. (2001a). The applications of capture-recapture models to epidemiological data.
+Chao, A., Tsay, P. K., Lin, S. H., Shau, W. Y., and Chao, D. Y. (2001). The applications of capture-recapture models to epidemiological data.
 \emph{Statistics in Medicine}, 20, 3123-3157.
 }
