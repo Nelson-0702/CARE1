@@ -33,6 +33,6 @@ National diabetes programs. Application of capture-recapture to count diabetes?
 
 \examples{
 data(Data_diabetes)
-CARE1.print(Data_diabetes)
+estN(Data_diabetes)
 }
 \keyword{datasets}

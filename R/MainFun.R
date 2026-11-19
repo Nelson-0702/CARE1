@@ -1,90 +1,7 @@
-# CARE1 1.1.1 unified functions, with documentation aligned to the
-# teacher-provided CARE1 Manual (2026-11-14).
-# Includes as.record(), CARE1.print(), estN(), estN.stat(),
-# estN.pair(), estN.para(), and the internal lee1() diagnostic.
-# IMPORTANT: Data documentation and DESCRIPTION remain separate package files.
-# IMPORTANT: Numerical regression tests against the legacy version are pending.
+# CARE1 1.1.1: public functions as.record() and estN().
+# Original estimation formulas retained; helper functions are internal.
 
-# CARE1 unified main functions
-# Public functions: as.record, estN, estN.stat,
-# estN.pair, estN.para, CARE1.print.
-# Internal diagnostic: lee1() (retained from original CARE1).
-# The internal .care1_* functions are not exported.
-# Replace duplicate original definitions in R/ before installing.
-# Statistical regression testing against the old package is required.
-
-#' Population Size Estimation Using Capture-Recapture Models
-#'
-#' @description
-#' Estimates population size using three capture-recapture estimators:
-#' Nhat-0, Nhat-1, and Nhat. All three are returned together, without a
-#' method argument. Optionally computes bootstrap standard errors and
-#' log-transformed 95\% confidence intervals.
-#'
-#' @param z A vector in categorical input format required by CARE1,
-#'   or an output object returned by \code{as.record}.
-#' @param se A logical variable indicating whether to compute the bootstrap
-#'   standard errors of the population size estimates. Default is FALSE.
-#' @param nboot Number of bootstrap replications. Default is 200.
-#'
-#' @return A list containing an \code{estimates} matrix with rows
-#'   \code{Nhat-0}, \code{Nhat-1}, and \code{Nhat} and columns:
-#'   \describe{
-#'     \item{est}{Population size estimate.}
-#'     \item{se}{Estimated standard error based on bootstrap replications.}
-#'     \item{cil}{Lower limit of the 95\% confidence interval, calculated
-#'       using a log-transformation.}
-#'     \item{ciu}{Upper limit of the 95\% confidence interval, calculated
-#'       using a log-transformation.}
-#'   }
-#'   When \code{se = FALSE}, the uncertainty columns contain \code{NA}.
-#'
-#' @details
-#' \describe{
-#'   \item{Nhat-0}{Population size estimate under the assumption of
-#'     independence among sources; see Eq. (9) of Chao et al. (2001).}
-#'   
-#'   \item{Nhat-1}{One-step population size estimate for cases with low
-#'     sample coverage; see Eq. (17) of Chao et al. (2001), or Eq. (14)
-#'     of Chao (2015) for an explicit formula for three-list data.}
-#'   
-#'   \item{Nhat}{Population size estimate for cases with sufficiently high
-#'     sample coverage; see Eq. (16) of Chao et al. (2001), or Eq. (13)
-#'     of Chao (2015) for an explicit formula for three-list data.}
-#' }
-#'
-#'
-#' @note
-#' As a rough guideline, sample coverage is considered sufficiently high
-#' when the estimated sample coverage (SC in \code{estN.stat} output) is at least 55\%
-#' and the estimated bootstrap standard error of Nhat is less than one-third
-#' of the population size estimate. Otherwise, Nhat-1 is recommended.
-#'
-#'
-#' @references
-#' Chao, A. (2015). Capture-recapture for human populations.
-#' Wiley StatsRef: Statistics Reference Online. W. Piegorsch, Ed.
-#' (John Wiley & Sons), 1-16.
-#' \doi{10.1002/9781118445112.stat04855.pub2}
-#'
-#' Chao, A., Tsay, P. K., Lin, S. H., Shau, W. Y., and Chao, D. Y.
-#' (2001). The applications of capture-recapture models to epidemiological
-#' data. Statistics in Medicine, 20, 3123-3157.
-#' \doi{10.1002/sim.996}
-#'
-#' @examples
-#' data(Data_HAV)
-#' estN(Data_HAV)
-#' data(Data_diabetes)
-#' estN(Data_diabetes)
-#' data(Data_congenital_anomaly)
-#' estN(Data_congenital_anomaly)
-#' \donttest{
-#' set.seed(123)
-#' estN(Data_HAV, se = TRUE, nboot = 200)
-#' }
-#' @export
-estN <- function(z, se = FALSE, nboot = 200) {
+.care1_estimates <- function(z, se = FALSE, nboot = 200) {
   z <- as.vector(unlist(z, use.names = FALSE))
   if (!is.numeric(z) || length(z) != 7L && length(z) != 15L && length(z) != 31L ||
       anyNA(z) || any(!is.finite(z)) || any(z < 0) || any(z != floor(z))) {
@@ -473,28 +390,7 @@ estN <- function(z, se = FALSE, nboot = 200) {
   list(z = z, k = k, patterns = patterns, n = n, M = sum(z))
 }
 
-#' Basic Capture-Recapture Statistics
-#'
-#' @description
-#' Calculates the number of identified cases in each list together with
-#' the total number of distinct observed cases (M), the average number of
-#' cases in the union of all lists except one (D), and the estimated
-#' sample coverage (SC).
-#' @param z A vector in categorical input format required by CARE1,
-#'   or an output object returned by \code{as.record}.
-#' @return A one-row numeric matrix containing \code{n1}, ..., \code{nK},
-#'   \code{M}, \code{D}, and \code{SC}. List counts and M are unrounded;
-#'   D and SC are rounded to three decimal places, as in the original
-#'   \code{estN.stat()} output.
-#' @examples
-#' data(Data_HAV)
-#' estN.stat(Data_HAV)
-#' data(Data_diabetes)
-#' estN.stat(Data_diabetes)
-#' data(Data_congenital_anomaly)
-#' estN.stat(Data_congenital_anomaly)
-#' @export
-estN.stat <- function(z) {
+.care1_stat <- function(z) {
   a <- .care1_pattern_info(z)
   if (any(a$n == 0)) {
     stop("Every list must contain observations.", call. = FALSE)
@@ -510,17 +406,7 @@ estN.stat <- function(z) {
          dimnames = list(NULL, names(values)))
 }
 
-#' Population size estimates based on every pair of lists
-#'
-#' @param z A vector in categorical input format required by CARE1,
-#'   or an output object returned by \code{as.record}.
-#' @return A matrix, one row per pair, with Petersen and Chapman estimates,
-#'   Chapman standard errors, and log-transformed 95 percent interval limits.
-#' @examples
-#' data(Data_diabetes)
-#' estN.pair(Data_diabetes)
-#' @export
-estN.pair <- function(z) {
+.care1_pair <- function(z) {
   a <- .care1_pattern_info(z)
   pairs <- utils::combn(seq_len(a$k), 2L)
   ans <- t(vapply(seq_len(ncol(pairs)), function(j) {
@@ -551,20 +437,7 @@ estN.pair <- function(z) {
   ans
 }
 
-#' Estimates of mean ascertainment probabilities and covariation coefficients
-#'
-#' @param z A vector in categorical input format required by CARE1,
-#'   or an output object returned by \code{as.record}.
-#' @param nhat A single estimated total population size, for example
-#'   estN(z)$estimates["Nhat", "est"].
-#' @return A one-row matrix with u_i and r_ij. Three-list data also
-#'   include r123, preserving the original CARE1 interface.
-#' @examples
-#' data(Data_HAV)
-#' fit <- estN(Data_HAV)
-#' estN.para(Data_HAV, fit["Nhat", "est"])
-#' @export
-estN.para <- function(z, nhat) {
+.care1_para <- function(z, nhat) {
   a <- .care1_pattern_info(z)
   if (!is.numeric(nhat) || length(nhat) != 1L || is.na(nhat) ||
       !is.finite(nhat) || nhat < 0) {
@@ -597,9 +470,7 @@ estN.para <- function(z, nhat) {
 }
 
 
-# -----------------------------------------------------------------------------
 # Convert individual-level binary records to CARE1 categorical frequencies.
-# -----------------------------------------------------------------------------
 #' Transform Individual Data to CARE1 Input Format
 #'
 #' @description
@@ -678,96 +549,122 @@ as.record <- function(x) {
   stats::setNames(frequencies, pattern_names)
 }
 
-# -----------------------------------------------------------------------------
 # Unified printed analysis; depends on the public functions defined above.
-# -----------------------------------------------------------------------------
 
-#' Prints Summary Results for Data in the Categorical Input Format Required by CARE1
+#' Population Size Estimation Using Capture-Recapture Models
 #'
 #' @description
-#' Prints summary results from capture-recapture analysis,
-#' including the number of identified cases in each list,
-#' population size estimates based on pairs of lists,
-#' and population size estimates based on the
-#' sample coverage approach.
-#'
-#' @param z A vector in categorical input format required by CARE1,
+#' Prints the number of identified cases in each list, optional pairwise
+#' population size estimates, and three population size estimates using
+#' the CARE1 sample coverage framework, together with parameter estimates.
+#' @param z A vector in the categorical input format required by CARE1,
 #'   or an output object returned by \code{as.record}.
-#'
-#' @return
-#' Prints three sets of results:
-#' \enumerate{
-#'   \item The number of identified cases in each list.
-#'   \item Petersen and Chapman population size estimates
-#'     based on each pair of lists, with standard errors
-#'     and 95\% confidence intervals.
-#'   \item Population size estimates (Nhat-0, Nhat, and
-#'     Nhat-1) based on the sample coverage approach,
-#'     with bootstrap standard errors, 95\% confidence
-#'     intervals, and parameter estimates.
-#' }
-#'
-#' The function also prints definitions of the reported
-#' statistics and a rough guideline for estimator selection.
-#'
-#' In addition to printing the results, the function invisibly
-#' returns a list containing four components:
+#' @param se A logical variable indicating whether to compute bootstrap
+#'   standard errors and log-transformed 95\% confidence intervals for
+#'   the three population size estimates. Default is \code{TRUE}.
+#'   This argument does not affect the analytical Chapman standard errors
+#'   and confidence intervals.
+#' @param nboot Number of bootstrap replications, an integer greater
+#'   than one. Default is 100.
+#' @param pair A logical variable indicating whether to compute and print
+#'   estimates based on each pair of lists. Default is \code{TRUE}.
+#' @return Invisibly returns a list containing:
 #' \describe{
-#'   \item{\code{list_counts}}{Number of identified cases
-#'     in each list.}
-#'   \item{\code{pair_estimates}}{Petersen and Chapman
-#'     estimates, standard errors, and confidence intervals
-#'     for each pair of lists.}
-#'   \item{\code{population_estimates}}{Three population
-#'     size estimates with summary statistics, bootstrap
-#'     standard errors, and confidence intervals.}
-#'   \item{\code{parameters}}{Estimated mean ascertainment
-#'     probabilities and coefficients of covariation.}
+#'   \item{list_counts}{Number of identified cases in each list.}
+#'   \item{pair_estimates}{Petersen and Chapman estimates, Chapman standard
+#'     errors and log-transformed 95\% confidence intervals; NULL if pair is FALSE.}
+#'   \item{population_estimates}{A matrix with rows Nhat-0, Nhat, Nhat-1
+#'     and columns M, D, SC, est, se, cil, ciu.}
+#'   \item{parameters}{Estimated mean ascertainment probabilities and
+#'     coefficients of covariation for each population size estimate.}
+#' }
+#' M is the number of distinct observed individuals; D is the average
+#' number of individuals in the union of all lists except one;
+#' SC is estimated sample coverage.
+#' \describe{
+#'   \item{est}{Population size estimate.}
+#'   \item{se}{Estimated standard error based on the bootstrap method.}
+#'   \item{cil}{Lower limit of the 95\% confidence interval, calculated
+#'     using a log-transformation.}
+#'   \item{ciu}{Upper limit of the 95\% confidence interval, calculated
+#'     using a log-transformation.}
+#' }
+#' When se is FALSE, the sample coverage uncertainty columns contain NA.
+#' Definitions and an estimator selection guideline are also printed.
+#'
+#' @details
+#' \describe{
+#'   \item{Nhat-0}{Population size estimate under the assumption of
+#'     independence among sources; see Eq. (9) of Chao et al. (2001).}
+#'   
+#'   \item{Nhat-1}{One-step population size estimate for cases with low
+#'     sample coverage; see Eq. (17) of Chao et al. (2001), or Eq. (14)
+#'     of Chao (2015) for an explicit formula for three-list data.}
+#'   
+#'   \item{Nhat}{Population size estimate for cases with sufficiently high
+#'     sample coverage; see Eq. (16) of Chao et al. (2001), or Eq. (13)
+#'     of Chao (2015) for an explicit formula for three-list data.}
 #' }
 #'
-#' @author T. C. Hsieh
+#'
+#' @note
+#' As a rough guideline, sample coverage is considered sufficiently high
+#' when the estimated sample coverage (SC in the output) is at least 55\%
+#' and the estimated bootstrap standard error of Nhat is less than one-third
+#' of the population size estimate. Otherwise, Nhat-1 is recommended.
+#'
+#'
+#' @references
+#' Chao, A. (2015). Capture-recapture for human populations.
+#' Wiley StatsRef: Statistics Reference Online. W. Piegorsch, Ed.
+#' (John Wiley & Sons), 1-16.
+#' \doi{10.1002/9781118445112.stat04855.pub2}
+#'
+#' Chao, A., Tsay, P. K., Lin, S. H., Shau, W. Y., and Chao, D. Y.
+#' (2001). The applications of capture-recapture models to epidemiological
+#' data. Statistics in Medicine, 20, 3123-3157.
+#' \doi{10.1002/sim.996}
 #'
 #' @examples
 #' data(Data_HAV)
+#' estN(Data_HAV, se = FALSE)
+#' estN(Data_HAV, se = FALSE, pair = FALSE)
 #' \donttest{
-#' CARE1.print(Data_HAV)
+#' set.seed(123)
+#' estN(Data_HAV, se = TRUE, nboot = 100, pair = TRUE)
 #' }
-#'
 #' @export
-
-
-CARE1.print <- function(z) {
+estN <- function(z, se = TRUE, nboot = 100, pair = TRUE) {
+  if (!is.logical(pair) || length(pair) != 1L || is.na(pair)) {
+    stop("pair must be TRUE or FALSE.", call. = FALSE)
+  }
   
   z <- as.vector(unlist(z, use.names = FALSE))
   a <- .care1_pattern_info(z)
   
   # 1. Compute population size estimates and summary statistics
-  fit <- estN(z, se = TRUE, nboot = 200)
-  stats <- estN.stat(z)
+  fit <- .care1_estimates(z, se = se, nboot = nboot)
+  summary_stats <- .care1_stat(z)
   
-  list_counts <- stats[
+  list_counts <- summary_stats[
     , paste0("n", seq_len(a$k)), drop = FALSE
   ]
   
-  pair_estimates <- estN.pair(z)
-  
-  # Remove unnecessary names introduced during matrix construction
-  colnames(pair_estimates) <- c(
-    "Petersen", "Chapman", "se", "cil", "ciu"
-  )
-  
   pairs <- utils::combn(seq_len(a$k), 2L)
-  rownames(pair_estimates) <- paste0(
-    "pair(", pairs[1L, ], ",", pairs[2L, ], ")"
-  )
+  pair_estimates <- NULL
+  if (pair) {
+    pair_estimates <- .care1_pair(z)
+    colnames(pair_estimates) <- c("Petersen", "Chapman", "se", "cil", "ciu")
+    rownames(pair_estimates) <- paste0("pair(", pairs[1L, ], ",", pairs[2L, ], ")")
+  }
   
   # 2. Preserve the original estimator display order
   kinds <- c("Nhat-0", "Nhat", "Nhat-1")
   
   pop_estimates <- cbind(
-    M = rep(stats[1L, "M"], length(kinds)),
-    D = rep(stats[1L, "D"], length(kinds)),
-    SC = rep(stats[1L, "SC"], length(kinds)),
+    M = rep(summary_stats[1L, "M"], length(kinds)),
+    D = rep(summary_stats[1L, "D"], length(kinds)),
+    SC = rep(summary_stats[1L, "SC"], length(kinds)),
     fit[kinds, , drop = FALSE]
   )
   
@@ -788,7 +685,7 @@ CARE1.print <- function(z) {
       return(rep(NA_real_, n_parameters))
     }
     
-    as.numeric(estN.para(z, n_hat))
+    as.numeric(.care1_para(z, n_hat))
     
   }, numeric(n_parameters)))
   
@@ -807,26 +704,17 @@ CARE1.print <- function(z) {
   cat("Number of identified cases in each list:\n")
   print(as.data.frame(list_counts), row.names = FALSE)
   
-  cat("\n")
-  cat("(1) ESTIMATES BASED ON EACH PAIR OF LISTS:\n")
-  print(round(pair_estimates, 2))
-  
-  cat("\n")
-  cat(
-    "    Note 1: Petersen and Chapman estimators provide ",
-    "population size estimates\n",
-    "            based on pairs of lists. Their standard ",
-    "errors are also reported.\n",
-    "    Note 2: A log-transformation is used to construct ",
-    "the 95% confidence\n",
-    "            intervals for the Chapman estimates.\n",
-    sep = ""
-  )
-  
-  
-  cat("\n")
-  cat("(2) SAMPLE COVERAGE APPROACH:\n")
+  if (pair) {
+    cat("\n ESTIMATES BASED ON EACH PAIR OF LISTS:\n")
+    print(round(pair_estimates, 2))
+    cat("\n    Note 1: Petersen and Chapman estimators provide population size estimates\n",
+        "            based on pairs of lists. The Chapman standard errors are reported.\n",
+        "    Note 2: A log-transformation is used to construct the 95% confidence\n",
+        "            intervals for the Chapman estimates.\n", sep = "")
+  }
+  cat(if (pair) "\n SAMPLE COVERAGE APPROACH:\n" else "\n SAMPLE COVERAGE APPROACH:\n")
   print(round(pop_estimates, 2))
+  if (!se) cat("Bootstrap standard errors and confidence intervals were not computed (se = FALSE).\n")
   
   # Diagnostic for the HSC estimator
   diag <- tryCatch(
@@ -907,7 +795,8 @@ CARE1.print <- function(z) {
     "\n",
     "As a rough guideline, sample coverage is considered",
     " sufficiently\n",
-    "high when SC is at least 0.55 and the bootstrap",
+    "high when the estimated sample coverage (SC in the output) is at least 55%\n",
+    "and the estimated bootstrap",
     " standard error\n",
     "of Nhat is less than one-third of Nhat. Otherwise,",
     " Nhat-1 is\n",

@@ -28,6 +28,6 @@ Chao, A., Tsay, P. K., Lin, S. H., Shau, W. Y., and Chao, D. Y. (2001). The appl
 }
 \examples{
 data(Data_HAV)
-CARE1.print(Data_HAV)
+estN(Data_HAV)
 }
 \keyword{datasets}

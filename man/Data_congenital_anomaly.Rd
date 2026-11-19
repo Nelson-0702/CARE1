@@ -32,6 +32,6 @@ Wittes, J. T., Colton, T., and Sidel, V. W. (1974). Capture-recapture methods fo
 }
 \examples{
 data(Data_congenital_anomaly)
-CARE1.print(Data_congenital_anomaly)
+estN(Data_congenital_anomaly)
 }
 \keyword{datasets}

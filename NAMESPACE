@@ -1,9 +1,5 @@
 export(as.record)
-export(CARE1.print)
-export(estN.pair)
-export(estN.para)
 export(estN)
-export(estN.stat)
 
 importFrom(stats, qnorm)
 importFrom(stats, runif)
